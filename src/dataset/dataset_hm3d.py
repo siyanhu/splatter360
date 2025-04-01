@@ -192,6 +192,8 @@ class DatasetHM3D(IterableDataset):
 
                     for index in indices:
                         file_path = files[index]
+                        file_path = Path(str(file_path).replace('/._', '/'))
+                        print(file_path)
                         pano_frame = cv2.imread(str(file_path))
                         pano_frame = cv2.cvtColor(pano_frame, cv2.COLOR_BGR2RGB)
                         cube_depth_frame = torch.load(str(file_path).replace("pano", "cubemaps_depth").replace(".png", ".torch"))

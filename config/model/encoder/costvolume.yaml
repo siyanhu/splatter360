@@ -20,7 +20,7 @@ d_feature: 128
 visualizer:
   num_samples: 8
   min_resolution: 256
-  export_ply: false
+  export_ply: true
 
 # params for multi-view depth predictor
 unimatch_weights_path: "checkpoints/gmdepth-scale1-resumeflowthings-scannet-5d9d7964.pth"

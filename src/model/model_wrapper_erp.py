@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Protocol, runtime_checkable
 
-import moviepy.editor as mpy
+# import moviepy.editor as mpy
+from moviepy.video.io.VideoFileClip import VideoFileClip
 import torch
 from einops import pack, rearrange, repeat
 from jaxtyping import Float
@@ -46,6 +47,8 @@ from .model_wrapper_helper import compute_l1_sphere_loss, erode
 from ..geometry.layers import Cube2Equirec #, Concat, BiProj, CEELayer
 from ..scripts.compute_depth_metrics import compute_depth_metrics_batched
 from ..geometry.z_depth_to_distance import depth_to_distance_map_batch
+
+from ..model.ply_export import export_ply
 @dataclass
 class OptimizerCfg:
     lr: float
@@ -330,7 +333,6 @@ class ModelWrapperERP(LightningModule):
                 deterministic=False,
             )
         
-        
         depth_mode = None if not self.test_cfg.eval_depth else "depth"
 
         with self.benchmarker.time("decoder", num_calls=v*num_cubes): # b*v
@@ -341,7 +343,7 @@ class ModelWrapperERP(LightningModule):
                 rearrange(batch["target"]["near_cubes"], "b v c -> b (v c)"),
                 rearrange(batch["target"]["far_cubes"], "b v c -> b (v c)"),
                 (h, w),
-                depth_mode=depth_mode,
+                depth_mode=depth_mode
             )
 
         (scene,) = batch["scene"]
@@ -357,6 +359,30 @@ class ModelWrapperERP(LightningModule):
 
         # rgb_gt = rearrange(batch["target"]["image_cubes_supervise"][0],  "(v cubes) ... -> v cubes ...", v=v, cubes=num_cubes)  # v cubes c h w
         rgb_gt = batch["target"]["image_cubes_supervise"][0] # v cubes c h w
+
+        ## export ply
+        visualization_dump = {}
+        output_dump = self.encoder.forward(
+            batch["context"], False, visualization_dump=visualization_dump
+        )
+        means = gaussians.means
+        scales = visualization_dump["scales"]
+        rotations = visualization_dump["rotations"]
+        harmonics = gaussians.harmonics
+        opacities = gaussians.opacities
+        pseudo_cube_id = 0
+        ext = interpolate_render_poses_m9d(batch["context"]["extrinsics_cubes"][0, :, pseudo_cube_id], view_num_interp=120)
+        ply_path=path / "ply" / f"{scene}_cube{pseudo_cube_id}.ply"
+        export_ply(   
+            extrinsics=ext[0], 
+            means=means[0], 
+            scales=scales[0], 
+            rotations=rotations[0], 
+            harmonics=harmonics[0], 
+            opacities=opacities[0], 
+            path=ply_path
+        )
+        self.test_cfg.save_image = False
         
         if self.test_cfg.save_image:
             for index in range(len(batch["target"]["index"][0])):

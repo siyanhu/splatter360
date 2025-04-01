@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=7
+export CUDA_VISIBLE_DEVICES=1
 
 # python -m src.scripts.generate_evaluation_index +evaluation=hm3d \
 #     dataset.name="hm3d" \

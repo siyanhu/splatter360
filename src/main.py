@@ -35,6 +35,8 @@ with install_import_hook(
     # from src.model.model_wrapper import ModelWrapper
     from src.model.model_wrapper_erp import ModelWrapperERP
 
+    from src.paper.generate_point_cloud_figure_splatter360_teaser import generate_point_cloud_figure
+
 
 
 def cyan(text: str) -> str:
@@ -204,6 +206,10 @@ def train(cfg_dict: DictConfig):
             datamodule=data_module,
             ckpt_path=checkpoint_path,
         )
+        # generate_point_cloud_figure(
+        #     cfg_dict
+        # )
+
 
 
 if __name__ == "__main__":

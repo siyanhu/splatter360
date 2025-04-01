@@ -543,8 +543,13 @@ class QKVAttentionLegacy(nn.Module):
         """
         # move the view dim into T for cross views attention if needed
         # NOTE: our outside code use (v b), not (b v)...
-        if self.use_cross_view_self_attn:
-            qkv = rearrange(qkv, "(v b) n t -> b n (v t)", v=self.n_frames)
+        qkv = rearrange(qkv, "(v b) n t -> b n (v t)", v=self.n_frames)
+        # if self.use_cross_view_self_attn and self.n_frames >= 3:
+        #     print("=====================")
+        #     print(qkv.shape)
+        #     print(self.n_frames)
+        #     print("=====================")
+        #     qkv = rearrange(qkv, "(v b) n t -> b n (v t)", v=self.n_frames)
 
         # apply attention
         bs, width, length = qkv.shape

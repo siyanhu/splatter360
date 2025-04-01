@@ -23,6 +23,7 @@ with install_import_hook(
     from src.config import load_typed_root_config
     from src.dataset import get_dataset
     from src.dataset.view_sampler.view_sampler_arbitrary import ViewSamplerArbitraryCfg
+    from src.dataset.view_sampler.view_sampler_evaluation import ViewSamplerEvaluationCfg
     from src.geometry.projection import homogenize_points, project
     from src.global_cfg import set_cfg
     from src.misc.image_io import save_image
@@ -119,25 +120,48 @@ def generate_point_cloud_figure(cfg_dict):
     )
     model_wrapper.eval()
 
+    # class ViewSamplerArbitraryCfg:
+    # name: Literal["arbitrary"]
+    # num_context_views: int
+    # num_target_views: int
+    # context_views: list[int] | None
+    # target_views: list[int] | None
+
+    # @dataclass
+    # class ViewSamplerEvaluationCfg:
+    #     name: Literal["evaluation"]
+    #     index_path: Path
+    #     num_context_views: int
+
     for idx, (scene, *context_indices, far, angles, line_width, cam_div) in enumerate(
         tqdm(SCENES)
     ):
         LINE_WIDTH = line_width
         # Create a dataset that always returns the desired scene.
-        view_sampler_cfg = ViewSamplerArbitraryCfg(
+        view_sampler_cfg = ViewSamplerArbitraryCfg (
             "arbitrary",
             2,
             2,
             context_views=list(context_indices),
-            target_views=[50, 147],  # use [40, 80] for teaser
+            # target_views=[50, 147],  # use [40, 80] for teaser
+            target_views=[40, 80]
         )
+
         cfg.dataset.view_sampler = view_sampler_cfg
         cfg.dataset.overfit_to_scene = scene
 
         # Get the scene.
-        dataset = get_dataset(cfg.dataset, "test", None)
-        example = default_collate([next(iter(dataset))])
-        example = apply_to_collection(example, Tensor, lambda x: x.to(device))
+        # from ..global_cfg import get_cfg
+        # global_cfg = get_cfg()
+        # print(global_cfg)
+
+        # dataset = cfg.test
+        # print(cfg.dataset.name)
+        # dataset = get_dataset(cfg.dataset, "train", None)
+        # print("PCD TESTING")
+        # exit(0)
+        # example = default_collate([next(iter(dataset))])
+        # example = apply_to_collection(example, Tensor, lambda x: x.to(device))
 
         # Generate the Gaussians.
         visualization_dump = {}

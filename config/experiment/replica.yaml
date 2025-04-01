@@ -40,8 +40,8 @@ loss:
 dataset: 
   image_shape: [512, 1024]
   # roots: [datasets/re10k]
-  roots: [/wudang_vuc_3dc_afs/chenzheng/replica_dataset_pt]
-  rgb_roots: [ /wudang_vuc_3dc_afs/chenzheng/replica_dataset]  
+  roots: [/media/siyanhu/Changkun/Siyan/Replica/replica_dataset_pt]
+  rgb_roots: [/media/siyanhu/Changkun/Siyan/Replica/replica_dataset]  
 
   near: 0.1
   far: 10.0  
